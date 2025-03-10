@@ -71,55 +71,6 @@
             color: white; /* Вернул белый цвет для текста */
         }
 
-        .news-popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-width: 400px;
-            color: black;
-            animation: popupAnim 0.5s ease-in-out;
-        }
-
-        /* Анимация для всплывающего окна */
-        @keyframes popupAnim {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        .popup-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .popup-buttons button {
-            flex: 1;
-            margin: 5px;
-            padding: 10px;
-            font-weight: bold;
-            border: none;
-            background: #28a745;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.1s ease;
-        }
-
-        .popup-buttons button:hover {
-            background: #218838;
-            transform: scale(1.05);
-        }
-
-        .popup-buttons button:active {
-            transform: scale(0.95);
-        }
-
         .answer-count {
             font-size: 16px;
             color: #8e44ad;
@@ -127,27 +78,6 @@
             position: absolute;
             bottom: 10px;
             right: 10px;
-        }
-
-        .answer-options {
-            display: flex;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .answer-options button {
-            margin: 5px;
-            padding: 12px;
-            font-size: 18px;
-            background-color: #ff7f50; 
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .answer-options button:hover {
-            background-color: #e67e22;
         }
 
     </style>
@@ -164,10 +94,6 @@
             <button class="button" onclick="showProfile()">Профиль</button>
         </div>
 
-        <div class="news-btn-wrapper">
-            <button class="button news-btn" onclick="showNews()">Новости</button>
-        </div>
-
         <p>Монет: <span id="coins">0</span></p>
         <p>Монет за тап: <span id="coinsPerTap">1</span></p>
         <div class="middle-buttons">
@@ -177,21 +103,6 @@
 
         <!-- Заменяем яйцо на картинку -->
         <img id="tapBtn" src="egg.png" alt="Яйцо" width="160" height="160" onclick="tap()" />
-    </div>
-
-    <!-- Окно с новостью -->
-    <div class="news-popup" id="newsPopup">
-        <button class="close-btn" onclick="closeNews()">✖</button>
-        <h3>🌟 Стоит ли развивать этот проект? 🌟</h3>
-        <p class="question">Мы хотим узнать ваше мнение! Пожалуйста, ответьте на вопрос ниже:</p>
-        <p>Должен ли этот проект продолжать развиваться? Мы готовы учесть ваше мнение!</p>
-        <div class="answer-count" id="answerCount">
-            ДА: 0 | НЕТ: 0
-        </div>
-        <div class="answer-options" id="answerOptions">
-            <button onclick="answer(true)">ДА</button>
-            <button onclick="answer(false)">НЕТ</button>
-        </div>
     </div>
 
     <script>
@@ -208,7 +119,6 @@
         document.getElementById("coinsPerTap").innerText = coinsPerTap;
 
         if (userIndex === 1) {
-            document.getElementById("answerOptions").style.display = "none"; // Скрыть кнопки голосования
             document.getElementById("answerCount").innerText = `ДА: ${yesCount} | НЕТ: ${noCount}`; // Показать результаты
         }
 
@@ -265,14 +175,6 @@
             setTimeout(() => { btn.src = "egg.png"; }, 3000);
         }
 
-        function showNews() {
-            document.getElementById("newsPopup").style.display = "block";
-        }
-
-        function closeNews() {
-            document.getElementById("newsPopup").style.display = "none";
-        }
-
         function answer(answer) {
             if (hasVoted) {
                 alert("Вы уже проголосовали.");
@@ -292,7 +194,6 @@
             }
 
             document.getElementById("answerCount").innerText = `ДА: ${yesCount} | НЕТ: ${noCount}`;
-            document.getElementById("answerOptions").style.display = "none"; // Скрываем кнопки после голосования
         }
     </script>
 </body>
