@@ -242,6 +242,10 @@
         <div class="answer-count" id="answerCount">
             ДА: 0 | НЕТ: 0
         </div>
+        <div class="answer-options" id="answerOptions">
+            <button onclick="answer(true)">ДА</button>
+            <button onclick="answer(false)">НЕТ</button>
+        </div>
     </div>
 
     <script>
@@ -310,30 +314,40 @@
             coins += coinsPerTap;
             document.getElementById("coins").innerText = coins;
             localStorage.setItem("coins", coins);
+            lastTapTime = Date.now();
+            localStorage.setItem("lastTapTime", lastTapTime);
+            let btn = document.getElementById("tapBtn");
+            btn.src = "eggCracked.png";
+            setTimeout(() => { btn.src = "egg.png"; }, 3000);
         }
 
         function showNews() {
             document.getElementById("newsPopup").style.display = "block";
-            // Показываем результаты
-            document.getElementById("answerCount").innerText = `ДА: ${yesCount} | НЕТ: ${noCount}`;
         }
 
         function closeNews() {
             document.getElementById("newsPopup").style.display = "none";
         }
 
-        function answer(isYes) {
-            if (isYes) {
+        function answer(answer) {
+            if (hasVoted) {
+                alert("Вы уже проголосовали.");
+                return;
+            }
+
+            hasVoted = true;
+            localStorage.setItem("hasVoted", "true");
+
+            if (answer) {
                 yesCount++;
                 localStorage.setItem("yesCount", yesCount);
             } else {
                 noCount++;
                 localStorage.setItem("noCount", noCount);
             }
-            localStorage.setItem("hasVoted", true);
+
             document.getElementById("answerCount").innerText = `ДА: ${yesCount} | НЕТ: ${noCount}`;
-            // Убираем кнопки после голосования
-            document.getElementById("answerOptions").style.display = "none";
+            document.getElementById("answerOptions").style.display = "none";  // Скрываем кнопки после голосования
         }
     </script>
 </body>
