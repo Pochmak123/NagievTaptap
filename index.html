@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тапалка</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #ffcc00, #ff6600);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 320px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            color: black;
+        }
+        h2 { font-size: 20px; margin-bottom: 15px; font-weight: bold; }
+        .top-buttons, .middle-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .button {
+            flex: 1;
+            padding: 12px;
+            margin: 5px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s, transform 0.1s ease;
+        }
+        .button:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        .button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        /* Увеличиваем кнопку "яичко" */
+        #tapBtn {
+            width: 160px;  /* Увеличиваем ширину */
+            height: 160px; /* Увеличиваем высоту */
+            font-size: 40px; /* Увеличиваем шрифт для текста на кнопке */
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffcc00, #ff9900);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s ease-out; /* Плавное изменение при нажатии */
+        }
+
+        /* Эффект сжатия при нажатии */
+        #tapBtn:active {
+            transform: scale(0.85); /* При нажатии кнопка сжимается */
+        }
+
+        p {
+            font-size: 18px;
+            font-weight: bold;
+            color: white; /* Вернул белый цвет для текста */
+        }
+
+        /* Добавление стиля для иконки Telegram */
+        .telegram-btn img {
+            width: 24px; /* Размер иконки */
+            height: 24px;
+            margin-top: 5px; /* Отступ сверху для иконки */
+        }
+
+        /* Стиль для окна с новостью */
+        .news-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.8); /* Белый фон с прозрачностью */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 400px;
+            color: black;
+            animation: popupAnim 0.5s ease-in-out;
+        }
+
+        /* Анимация для всплывающего окна */
+        @keyframes popupAnim {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .popup-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .popup-buttons button {
+            flex: 1;
+            margin: 5px;
+            padding: 10px;
+            font-weight: bold;
+            border: none;
+            background: #28a745;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+        }
+
+        .popup-buttons button:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .popup-buttons button:active {
+            transform: scale(0.95);
+        }
+
+        /* Красочные стили для текста в окне новостей */
+        h3 {
+            font-size: 24px;
+            color: #f39c12; /* Ярко-желтый цвет */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #e74c3c; /* Красный цвет для текста */
+            font-weight: bold;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 20px;
+            color: #2980b9; /* Синий цвет для вопросов */
+            font-weight: 600;
+        }
+
+        .answer-options {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .answer-options button {
+            margin: 5px;
+            padding: 12px;
+            font-size: 18px;
+            background-color: #ff7f50; /* Оранжевый */
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .answer-options button:hover {
+            background-color: #e67e22;
+        }
+
+        /* Стиль для счетчика "Да" и "Нет" */
+        .answer-count {
+            font-size: 16px;
+            color: #8e44ad; /* Фиолетовый для текста */
+            font-weight: bold;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .news-btn {
+            margin-top: 20px;
+        }
+
+        /* Позиционирование кнопки "Новости" под всеми кнопками */
+        .news-btn-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: #e74c3c;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🥚Яйцо Нагиева🥚</h2>
+        <div class="top-buttons">
+            <!-- Кнопка с изображением Telegram -->
+            <button class="button telegram-btn" onclick="openTelegram()">
+                <img src="telegram-icon.png" alt="Telegram">
+            </button>
+            <button id="loginBtn" class="button" onclick="login()">Вход</button>
+            <button class="button" onclick="showProfile()">Профиль</button>
+        </div>
+
+        <!-- Кнопка Новости теперь над монетами -->
+        <div class="news-btn-wrapper">
+            <button class="button news-btn" onclick="showNews()">Новости</button>
+        </div>
+
+        <p>Монет: <span id="coins">0</span></p>
+        <p>Монет за тап: <span id="coinsPerTap">1</span></p>
+        <div class="middle-buttons">
+            <button id="earnBtn" class="button" onclick="earnCoin()">+1 монета</button>
+            <button class="button" onclick="rickroll()">Вывести</button>
+        </div>
+
+        <!-- Заменяем яйцо на картинку -->
+        <img id="tapBtn" src="egg.png" alt="Яйцо" width="160" height="160" onclick="tap()" />
+    </div>
+
+    <!-- Окно с новостью -->
+    <div class="news-popup" id="newsPopup">
+        <button class="close-btn" onclick="closeNews()">✖</button>
+        <h3>🌟 Стоит ли развивать этот проект? 🌟</h3>
+        <p class="question">Мы хотим узнать ваше мнение! Пожалуйста, ответьте на вопрос ниже:</p>
+        <p>Должен ли этот проект продолжать развиваться? Мы готовы учесть ваше мнение!</p>
+        <div class="answer-count" id="answerCount">
+            ДА: 0 | НЕТ: 0
+        </div>
+    </div>
+
+    <script>
+        let coins = parseInt(localStorage.getItem("coins")) || 0;
+        let coinsPerTap = parseInt(localStorage.getItem("coinsPerTap")) || 1;
+        const lockTime = 1200000; // 20 минут
+        let yesCount = parseInt(localStorage.getItem("yesCount")) || 0;
+        let noCount = parseInt(localStorage.getItem("noCount")) || 0;
+        let hasVoted = localStorage.getItem("hasVoted") === "true";
+        let lastTapTime = parseInt(localStorage.getItem("lastTapTime")) || 0;
+        let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";  // Проверка на вход в аккаунт
+
+        document.getElementById("coins").innerText = coins;
+        document.getElementById("coinsPerTap").innerText = coinsPerTap;
+
+        if (isLoggedIn) {
+            document.getElementById("loginBtn").disabled = true;
+            document.getElementById("loginBtn").innerText = "Вы уже в аккаунте";
+        }
+
+        // Проверка таймера 20 минут
+        if (Date.now() - lastTapTime < lockTime) {
+            document.getElementById("earnBtn").disabled = true;
+        }
+
+        function openTelegram() {
+            window.location.href = "https://t.me/Alexpochmak";
+        }
+
+        function login() {
+            let username = prompt("Введите логин:");
+            let password = prompt("Введите пароль:");
+            let encryptedPass = btoa(password.split('').reverse().join(''));
+            localStorage.setItem("user", JSON.stringify({ username, password: encryptedPass }));
+            localStorage.setItem("isLoggedIn", true);
+            isLoggedIn = true;
+            document.getElementById("loginBtn").disabled = true;
+            document.getElementById("loginBtn").innerText = "Вы уже в аккаунте";
+            alert("Вы вошли как " + username);
+        }
+
+        function showProfile() {
+            let user = JSON.parse(localStorage.getItem("user"));
+            if (user) {
+                alert(`Профиль:\nЛогин: ${user.username}\nБаланс: ${coins}`);
+            } else {
+                alert("Вы не вошли в аккаунт!");
+            }
+        }
+
+        function earnCoin() {
+            coinsPerTap++;
+            document.getElementById("coinsPerTap").innerText = coinsPerTap;
+            localStorage.setItem("coinsPerTap", coinsPerTap);
+            let btn = document.getElementById("earnBtn");
+            btn.disabled = true;
+            localStorage.setItem("lastTapTime", Date.now());
+            setTimeout(() => { btn.disabled = false; }, lockTime);
+        }
+
+        function rickroll() {
+            window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+        }
+
+        function tap() {
+            coins += coinsPerTap;
+            document.getElementById("coins").innerText = coins;
+            localStorage.setItem("coins", coins);
+        }
+
+        function showNews() {
+            document.getElementById("newsPopup").style.display = "block";
+            // Показываем результаты
+            document.getElementById("answerCount").innerText = `ДА: ${yesCount} | НЕТ: ${noCount}`;
+        }
+
+        function closeNews() {
+            document.getElementById("newsPopup").style.display = "none";
+        }
+
+        function answer(isYes) {
+            if (isYes) {
+                yesCount++;
+                localStorage.setItem("yesCount", yesCount);
+            } else {
+                noCount++;
+                localStorage.setItem("noCount", noCount);
+            }
+            localStorage.setItem("hasVoted", true);
+            document.getElementById("answerCount").innerText = `ДА: ${yesCount} | НЕТ: ${noCount}`;
+            // Убираем кнопки после голосования
+            document.getElementById("answerOptions").style.display = "none";
+        }
+    </script>
+</body>
+</html>
