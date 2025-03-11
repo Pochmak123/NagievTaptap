@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Криптобиржа с графиком свечей</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #333, #444);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .button {
+            padding: 12px;
+            margin: 10px;
+            background: #007bff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 200px;
+            transition: background 0.3s, transform 0.1s ease;
+        }
+        .button:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        .crypto-price {
+            font-size: 30px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+        #trafficInfo {
+            font-size: 16px;
+            margin-top: 20px;
+            color: #ffcc00;
+        }
+        .result {
+            font-size: 22px;
+            margin-top: 20px;
+        }
+        .input-amount {
+            font-size: 18px;
+            margin-top: 10px;
+            width: 200px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Стиль экрана загрузки */
+        #preloadScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #333;
+            color: white;
+            text-align: center;
+        }
+
+        #preloadScreen h2 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        #startBtn {
+            background: #007bff;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s ease;
+            border: none;
+        }
+
+        #startBtn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Основной контент */
+        #mainContent {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Экран с анимацией перед загрузкой -->
+    <div id="preloadScreen">
+        <div>
+            <h2>Загрузка...</h2>
+            <button id="startBtn">Продолжить</button>
+        </div>
+    </div>
+
+    <!-- Основной контент (скрыт до нажатия кнопки) -->
+    <div id="mainContent">
+        <div class="container">
+            <h2>Криптобиржа - Торговля Биткояйцами</h2>
+            <!-- Баланс пользователя -->
+            <p>Ваш баланс: <span id="coins">1000</span> Нагиев монет</p>
+            <p>Цена Биткояйца: <span id="cryptoPrice" class="crypto-price">10</span> Нагиев монет</p>
+
+            <!-- Ввод количества Биткояйцев для покупки или продажи -->
+            <input type="number" id="amount" class="input-amount" min="1" placeholder="Введите количество" />
+
+            <!-- Кнопки покупки и продажи Биткояйца -->
+            <button class="button" onclick="buyBitcoin()">Купить Биткояйца</button>
+            <button class="button" onclick="sellBitcoin()">Продать Биткояйца</button>
+
+            <!-- График свечей -->
+            <div class="chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+
+            <!-- Информация о трафике -->
+            <div id="trafficInfo">
+                Трафик: <span id="trafficAmount">0</span> сделок/сек
+            </div>
+
+            <!-- Результат -->
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <!-- Фоновая музыка -->
+    <audio id="backgroundMusic" loop>
+        <source src="arb.mp3" type="audio/mp3">
+        Ваш браузер не поддерживает аудио.
+    </audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Включаем музыку при загрузке страницы
+        window.onload = function() {
+            document.getElementById("backgroundMusic").play();
+            // Назначаем событие на кнопку "Продолжить" только после загрузки страницы
+            document.getElementById("startBtn").onclick = function() {
+                document.getElementById("preloadScreen").style.display = 'none';
+                document.getElementById("mainContent").style.display = 'block';
+            };
+        };
+
+        let coins = parseInt(localStorage.getItem("coins")) || 1000;  // Баланс Нагиев монет
+        let cryptoPrice = parseFloat(localStorage.getItem("cryptoPrice")) || 10;  // Цена Биткояйца
+        let bitcoinAmount = parseInt(localStorage.getItem("bitcoinAmount")) || 0;  // Количество Биткояйцев у пользователя
+
+        let traffic = 0; // Трафик на бирже
+        let priceHistory = JSON.parse(localStorage.getItem("priceHistory")) || []; // История цен для графика
+        let chart; // Ссылка на график
+        let marketVolatility = 1; // Фактор волатильности рынка (чем больше покупок, тем сильнее падение)
+
+        // Обновление данных на странице
+        document.getElementById("coins").innerText = coins;
+        document.getElementById("cryptoPrice").innerText = cryptoPrice;
+
+        // Настройка графика свечей
+        function initChart() {
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: 'Цена Биткояйца',
+                        data: priceHistory,
+                        borderColor: '#ffcc00',
+                        backgroundColor: '#ff9900',
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { type: 'linear' },
+                        y: { ticks: { beginAtZero: true } }
+                    }
+                }
+            });
+        }
+
+        // Функция для симуляции трафика на бирже
+        function simulateTraffic() {
+            setInterval(() => {
+                let randomTraffic = Math.floor(Math.random() * 5);  // случайное количество сделок (0-4)
+                traffic += randomTraffic;
+                document.getElementById("trafficAmount").innerText = traffic;
+
+                // Случайное изменение цены Биткояйца
+                changeCryptoPrice();
+                updateChart();
+            }, 5000);  // обновление каждые 5 секунд
+        }
+
+        // Функция изменения цены Биткояйца
+        function changeCryptoPrice() {
+            let randomChange = (Math.random() - 0.5) * 2 * marketVolatility;  // случайное изменение цены
+            cryptoPrice += randomChange;
+            cryptoPrice = Math.max(cryptoPrice, 1);  // цена не может быть меньше 1
+
+            // Обновляем отображение
+            document.getElementById("cryptoPrice").innerText = cryptoPrice.toFixed(2);
+            // Сохраняем цену в localStorage
+            localStorage.setItem("cryptoPrice", cryptoPrice.toFixed(2));
+        }
+
+        // Функция покупки Биткояйца
+        function buyBitcoin() {
+            let amount = parseInt(document.getElementById("amount").value);
+            if (isNaN(amount) || amount < 1) {
+                document.getElementById("result").innerText = 'Введите правильное количество Биткояйцев для покупки.';
+                return;
+            }
+
+            let totalPrice = amount * cryptoPrice;
+            if (coins < totalPrice) {
+                document.getElementById("result").innerText = 'Недостаточно средств для покупки Биткояйцев.';
+                return;
+            }
+
+            // Вычитаем монеты и увеличиваем количество Биткояйцев
+            coins -= totalPrice;
+            bitcoinAmount += amount;
+
+            // Увеличиваем волатильность рынка (чем больше покупок, тем сильнее падает цена)
+            marketVolatility += 0.05 * amount;
+
+            // Немедленно уменьшаем цену
+            changeCryptoPrice();
+
+            // Обновляем баланс
+            localStorage.setItem("coins", coins);
+            localStorage.setItem("bitcoinAmount", bitcoinAmount);
+
+            document.getElementById("coins").innerText = coins;
+            document.getElementById("result").innerText = `Вы купили ${amount} Биткояйцев! Ваши Биткояйцы: ${bitcoinAmount}`;
+        }
+
+        // Функция продажи Биткояйца
+        function sellBitcoin() {
+            let amount = parseInt(document.getElementById("amount").value);
+            if (isNaN(amount) || amount < 1) {
+                document.getElementById("result").innerText = 'Введите правильное количество Биткояйцев для продажи.';
+                return;
+            }
+
+            if (bitcoinAmount < amount) {
+                document.getElementById("result").innerText = 'У вас недостаточно Биткояйцев для продажи.';
+                return;
+            }
+
+            // Вычитаем Биткояйцы и увеличиваем монеты
+            bitcoinAmount -= amount;
+            coins += amount * cryptoPrice;
+
+            // Уменьшаем волатильность рынка (чем больше продаж, тем меньше падение цены)
+            marketVolatility = Math.max(1, marketVolatility - 0.05 * amount);
+
+            // Обновляем баланс
+            localStorage.setItem("coins", coins);
+            localStorage.setItem("bitcoinAmount", bitcoinAmount);
+
+            document.getElementById("coins").innerText = coins;
+            document.getElementById("result").innerText = `Вы продали ${amount} Биткояйцев! Ваши Биткояйцы: ${bitcoinAmount}`;
+        }
+
+        // Функция для обновления графика
+        function updateChart() {
+            let isPriceRising = priceHistory.length === 0 || cryptoPrice > priceHistory[priceHistory.length - 1].c;
+            let color = isPriceRising ? 'green' : 'red';
+
+            // Добавляем новую свечу
+            priceHistory.push({
+                x: priceHistory.length + 1,
+                o: cryptoPrice - (Math.random() * 1),  // Открытие свечи
+                h: cryptoPrice + 0.5,  // Высокая цена
+                l: cryptoPrice - 0.5,  // Низкая цена
+                c: cryptoPrice         // Закрытие свечи
+            });
+
+            // Ограничиваем историю цен до 20 значений
+            if (priceHistory.length > 20) {
+                priceHistory.shift();
+            }
+
+            // Обновляем данные графика
+            chart.update();
+
+            // Сохраняем историю цен в localStorage
+            localStorage.setItem("priceHistory", JSON.stringify(priceHistory));
+        }
+
+        // Запуск симуляции трафика и графика при загрузке страницы
+        simulateTraffic();
+        initChart();
+
+    </script>
+</body>
+</html>

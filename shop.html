@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин | Тапалка</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            color: black;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .category-buttons button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s;
+            margin: 0 10px;
+        }
+
+        .category-buttons button:hover {
+            background: #45a049;
+        }
+
+        .items-list {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            background: #444;
+            border-radius: 8px;
+        }
+
+        .items-list.active {
+            display: block;
+        }
+
+        .item-card {
+            display: flex;
+            justify-content: space-between;
+            background: #555;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: white;
+            align-items: center;
+        }
+
+        .item-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+
+        .item-card .item-details {
+            flex: 1;
+            padding-left: 15px;
+        }
+
+        .item-card .item-details p {
+            margin: 5px 0;
+        }
+
+        .item-card .item-details .item-price {
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .item-card button {
+            background: #28a745; /* Зеленый цвет для кнопки */
+            color: white;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .item-card button:hover {
+            background: #218838;
+        }
+
+        /* Экран с анимацией перед загрузкой */
+        #preloadScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #333;
+            color: white;
+            text-align: center;
+        }
+
+        #preloadScreen h2 {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        #startBtn {
+            background: #007bff;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s ease;
+            border: none;
+        }
+
+        #startBtn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Основной контент */
+        #mainContent {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Экран с анимацией перед загрузкой -->
+    <div id="preloadScreen">
+        <div>
+            <h2>Загрузка...</h2>
+            <button id="startBtn">Продолжить</button>
+        </div>
+    </div>
+
+    <!-- Основной контент (скрыт до нажатия кнопки) -->
+    <div class="container" id="mainContent">
+        <h2>Магазин</h2>
+
+        <!-- Кнопки категорий -->
+        <div class="category-buttons">
+            <button onclick="showCategory('skins')">Скины</button>
+            <button onclick="showCategory('cars')">Машины</button>
+        </div>
+
+        <!-- Скины -->
+        <div class="items-list" id="skins">
+            <!-- Скин 1 -->
+            <div class="item-card">
+                <img src="nagiev1.png" alt="Нагиев крутой">
+                <div class="item-details">
+                    <p><strong>Нагиев крутой</strong></p>
+                    <p>Крутой Нагиев в жёстких очках</p>
+                    <p class="item-price">Цена: 500 Нагиев коинов</p>
+                </div>
+                <button onclick="buySkin('nagiev1.png', 500)">Купить</button>
+            </div>
+
+            <!-- Скин 2 -->
+            <div class="item-card">
+                <img src="nagiev2.png" alt="Нагиев в 90-х">
+                <div class="item-details">
+                    <p><strong>Нагиев в 90-х</strong></p>
+                    <p>Жёсткий Нагиев в 90-х</p>
+                    <p class="item-price">Цена: 1000 Нагиев коинов</p>
+                </div>
+                <button onclick="buySkin('nagiev2.png', 1000)">Купить</button>
+            </div>
+
+            <!-- Скин 3 -->
+            <div class="item-card">
+                <img src="nagiev3.png" alt="Нагиев «Курение убивает»">
+                <div class="item-details">
+                    <p><strong>Нагиев «Курение убивает»</strong></p>
+                    <p>Курение убивает, но не Нагиева</p>
+                    <p class="item-price">Цена: 1500 Нагиев коинов</p>
+                </div>
+                <button onclick="buySkin('nagiev3.png', 1500)">Купить</button>
+            </div>
+
+            <!-- Скин 4 -->
+            <div class="item-card">
+                <img src="nagiev4.png" alt="Нагиев премиум">
+                <div class="item-details">
+                    <p><strong>Нагиев премиум</strong></p>
+                    <p>Премиум Нагиев, только для богатых</p>
+                    <p class="item-price">Цена: 5000 Нагиев коинов</p>
+                </div>
+                <button onclick="buySkin('nagiev4.png', 5000)">Купить</button>
+            </div>
+
+            <!-- Скин 5 -->
+            <div class="item-card">
+                <img src="nagiev5.png" alt="Побитый Нагиев">
+                <div class="item-details">
+                    <p><strong>Побитый Нагиев</strong></p>
+                    <p>Бедолага(</p>
+                    <p class="item-price">Цена: 600 Нагиев коинов</p>
+                </div>
+                <button onclick="buySkin('nagiev5.png', 600)">Купить</button>
+            </div>
+        </div>
+
+        <!-- Машины -->
+        <div class="items-list" id="cars">
+            <!-- Пока пусто, но здесь будут карточки с машинами -->
+        </div>
+    </div>
+
+    <!-- Фоновая музыка -->
+    <audio id="backgroundMusic" loop>
+        <source src="shopmusic.mp3" type="audio/mp3">
+        Ваш браузер не поддерживает элемент audio.
+    </audio>
+
+    <script>
+        let coins = parseInt(localStorage.getItem("coins")) || 0;
+
+        // Функция для отображения категории
+        function showCategory(category) {
+            let categories = document.querySelectorAll(".items-list");
+            categories.forEach(category => {
+                category.classList.remove("active");
+            });
+
+            document.getElementById(category).classList.add("active");
+        }
+
+        // Функция покупки скина
+        function buySkin(skin, price) {
+    if (coins >= price) {
+        coins -= price;
+        localStorage.setItem("coins", coins);
+        localStorage.setItem("skinBought", skin); // Сохраняем, что скин был куплен
+
+        alert("Вы купили " + skin);
+
+        // Переход на главную страницу
+        window.location.href = "index.html"; // Переход на главную страницу после покупки
+    } else {
+        alert("У вас недостаточно монет!");
+    }
+}
+
+
+        // Показываем скины по умолчанию при загрузке
+        showCategory('skins');
+
+        // Показать основной контент после нажатия кнопки
+        document.getElementById("startBtn").addEventListener("click", function() {
+            document.getElementById("preloadScreen").style.display = "none";
+            document.getElementById("mainContent").style.display = "block";
+            // Включаем музыку
+            document.getElementById('backgroundMusic').play();
+        });
+    </script>
+</body>
+</html>
